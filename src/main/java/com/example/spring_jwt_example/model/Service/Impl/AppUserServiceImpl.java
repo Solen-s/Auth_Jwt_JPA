@@ -23,10 +23,10 @@ public class AppUserServiceImpl implements AppUserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return appUserRepository.findByEmail(username)
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        return appUserRepository.findByUsernameOrEmail(login, login)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with email: " + username)
+                        new UsernameNotFoundException("User not found with email or username: " + login)
                 );
     }
 

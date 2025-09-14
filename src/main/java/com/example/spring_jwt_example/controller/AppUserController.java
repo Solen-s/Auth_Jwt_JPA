@@ -53,7 +53,7 @@ public class AppUserController {
     }
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@Valid @RequestBody AuthenticationRequest request) throws Exception {
-        final UserDetails user = appUserService.loadUserByUsername(request.getEmail());
+        final UserDetails user = appUserService.loadUserByUsername(request.getLogin());
         final String token = jwtService.generateToken(user);
         if(user == null){
             throw new BadCredentialsException("INVALID_CREDENTIALS");
@@ -61,9 +61,9 @@ public class AppUserController {
         if(user.getPassword().equals(token)){
             throw new BadCredentialsException("INVALID_CREDENTIALS");
         }
-       authenticate(request.getEmail(),request.getPassword());
+       authenticate(request.getLogin(),request.getPassword());
         try{
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword());
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getLogin(),request.getPassword());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         } catch (Exception e) {
             throw new RuntimeException(e);

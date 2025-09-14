@@ -30,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;
-        String email = null;
+        String login = null;
         String servletPath = request.getServletPath();
 
         // ✅ Skip JWT filter for public paths
@@ -40,12 +40,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            email = jwtService.extractEmail(token);
+            login = jwtService.extractUsername(token);
         }
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = appUserService.loadUserByUsername(email);
+        if (login != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = appUserService.loadUserByUsername(login);
             if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }

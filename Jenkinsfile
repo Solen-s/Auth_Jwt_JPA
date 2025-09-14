@@ -15,14 +15,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building project..."
-                sh 'mvn clean install -DskipTests' // if it's Maven project
+                sh 'mvn clean install -DskipTests' // For Maven projects
             }
         }
 
         stage('Test') {
             steps {
                 echo "Running tests..."
-                sh 'mvn test' // run unit tests
+                sh 'mvn test'
             }
         }
 
@@ -30,7 +30,22 @@ pipeline {
             steps {
                 echo "Branch: ${env.GIT_BRANCH}"
                 echo "Commit: ${env.GIT_COMMIT}"
-                sh 'git log -1 --pretty=format:"%h - %an: %s"'
+
+                script {
+                    // Get the author of the last commit
+                    def author = sh(
+                        script: "git log -1 --pretty=format:'%an <%ae>'",
+                        returnStdout: true
+                    ).trim()
+                    echo "Commit Author: ${author}"
+
+                    // Optional: get committer (who actually pushed)
+                    def committer = sh(
+                        script: "git log -1 --pretty=format:'%cn <%ce>'",
+                        returnStdout: true
+                    ).trim()
+                    echo "Committer: ${committer}"
+                }
             }
         }
     }

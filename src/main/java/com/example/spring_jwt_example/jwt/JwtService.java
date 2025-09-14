@@ -39,7 +39,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         AppUser appUser = (AppUser) userDetails;
         claims.put("user_id", appUser.getId());
-        return createToken(claims, appUser.getEmail());
+        return createToken(claims, appUser.getUsername());
     }
 
     //3. retrieving any information from token we will need the secret key
@@ -58,7 +58,7 @@ public class JwtService {
     }
 
     //5. retrieve username from jwt token
-    public String extractEmail(String token) {
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -74,7 +74,7 @@ public class JwtService {
 
     //8. validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String email = extractEmail(token);
+        final String email = extractUsername(token);
         return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }

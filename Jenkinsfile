@@ -1,17 +1,21 @@
 pipeline {
     agent any
-    tools {
-        jdk 'JDK17'
+
+    environment {
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'  // Adjust this path
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
 
     triggers {
-        githubPush() // auto-trigger on push
+        githubPush()
     }
 
     stages {
         stage('Check Java') {
             steps {
                 sh 'java -version'
+                sh 'echo "JAVA_HOME: $JAVA_HOME"'
+                sh 'which java'
             }
         }
 
@@ -24,7 +28,7 @@ pipeline {
         stage('Build JAR') {
             steps {
                 echo "Building project..."
-                sh 'mvn clean package -DskipTests' // For Maven
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -41,14 +45,12 @@ pipeline {
                 echo "Commit: ${env.GIT_COMMIT}"
 
                 script {
-                    // Get the author of the last commit
                     def author = sh(
                         script: "git log -1 --pretty=format:'%an <%ae>'",
                         returnStdout: true
                     ).trim()
                     echo "Commit Author: ${author}"
 
-                    // Optional: get committer (who actually pushed)
                     def committer = sh(
                         script: "git log -1 --pretty=format:'%cn <%ce>'",
                         returnStdout: true

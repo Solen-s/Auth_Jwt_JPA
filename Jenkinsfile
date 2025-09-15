@@ -27,43 +27,52 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage ("test") {
             steps {
-                echo "Running tests..."
-                sh 'mvn test'
+                sh '''
+                    mvn --version
+                '''
             }
         }
+        
 
-        stage('Commit Info') {
-            steps {
-                echo "Branch: ${env.GIT_BRANCH}"
-                echo "Commit: ${env.GIT_COMMIT}"
+        // stage('Test') {
+        //     steps {
+        //         echo "Running tests..."
+        //         sh 'mvn test'
+        //     }
+        // }
 
-                script {
-                    // Get the author of the last commit
-                    def author = sh(
-                        script: "git log -1 --pretty=format:'%an <%ae>'",
-                        returnStdout: true
-                    ).trim()
-                    echo "Commit Author: ${author}"
+    //     stage('Commit Info') {
+    //         steps {
+    //             echo "Branch: ${env.GIT_BRANCH}"
+    //             echo "Commit: ${env.GIT_COMMIT}"
 
-                    // Optional: get committer (who actually pushed)
-                    def committer = sh(
-                        script: "git log -1 --pretty=format:'%cn <%ce>'",
-                        returnStdout: true
-                    ).trim()
-                    echo "Committer: ${committer}"
-                }
-            }
-        }
-    }
+    //             script {
+    //                 // Get the author of the last commit
+    //                 def author = sh(
+    //                     script: "git log -1 --pretty=format:'%an <%ae>'",
+    //                     returnStdout: true
+    //                 ).trim()
+    //                 echo "Commit Author: ${author}"
 
-    post {
-        success {
-            echo "✅ Build succeeded for commit ${env.GIT_COMMIT}"
-        }
-        failure {
-            echo "❌ Build failed for commit ${env.GIT_COMMIT}"
-        }
+    //                 // Optional: get committer (who actually pushed)
+    //                 def committer = sh(
+    //                     script: "git log -1 --pretty=format:'%cn <%ce>'",
+    //                     returnStdout: true
+    //                 ).trim()
+    //                 echo "Committer: ${committer}"
+    //             }
+    //         }
+    //     }
+    // }
+
+    // post {
+    //     success {
+    //         echo "✅ Build succeeded for commit ${env.GIT_COMMIT}"
+    //     }
+    //     failure {
+    //         echo "❌ Build failed for commit ${env.GIT_COMMIT}"
+    //     }
     }
 }

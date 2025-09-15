@@ -20,7 +20,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Building project..."
-                sh 'mvn clean install -DskipTests' // For Maven projects
+                sh 'mvn clean install' // For Maven projects
             }
         }
 

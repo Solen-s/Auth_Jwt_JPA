@@ -1,18 +1,24 @@
 pipeline {
     agent any
 
-    environment {
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'  // Adjust this path
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    }
-
     triggers {
         githubPush()
     }
 
     stages {
-        stage('Check Java') {
+        stage('Setup Java') {
             steps {
+                script {
+                    // Find the correct JAVA_HOME dynamically
+                    def javaPath = sh(script: "readlink -f \$(which java)", returnStdout: true).trim()
+                    def javaHome = sh(script: "dirname \$(dirname ${javaPath})", returnStdout: true).trim()
+
+                    env.JAVA_HOME = javaHome
+                    env.PATH = "${javaHome}/bin:${env.PATH}"
+
+                    echo "Detected JAVA_HOME: ${javaHome}"
+                }
+
                 sh 'java -version'
                 sh 'echo "JAVA_HOME: $JAVA_HOME"'
                 sh 'which java'

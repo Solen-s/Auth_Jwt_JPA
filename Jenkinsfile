@@ -2,39 +2,20 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()
+        githubPush() // auto-trigger on push
     }
 
     stages {
-        stage('Setup Java') {
-            steps {
-                script {
-                    // Find the correct JAVA_HOME dynamically
-                    def javaPath = sh(script: "readlink -f \$(which java)", returnStdout: true).trim()
-                    def javaHome = sh(script: "dirname \$(dirname ${javaPath})", returnStdout: true).trim()
-
-                    env.JAVA_HOME = javaHome
-                    env.PATH = "${javaHome}/bin:${env.PATH}"
-
-                    echo "Detected JAVA_HOME: ${javaHome}"
-                }
-
-                sh 'java -version'
-                sh 'echo "JAVA_HOME: $JAVA_HOME"'
-                sh 'which java'
-            }
-        }
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build JAR') {
+        stage('Build') {
             steps {
                 echo "Building project..."
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn clean install -DskipTests' // For Maven projects
             }
         }
 
@@ -51,12 +32,14 @@ pipeline {
                 echo "Commit: ${env.GIT_COMMIT}"
 
                 script {
+                    // Get the author of the last commit
                     def author = sh(
                         script: "git log -1 --pretty=format:'%an <%ae>'",
                         returnStdout: true
                     ).trim()
                     echo "Commit Author: ${author}"
 
+                    // Optional: get committer (who actually pushed)
                     def committer = sh(
                         script: "git log -1 --pretty=format:'%cn <%ce>'",
                         returnStdout: true
@@ -65,33 +48,14 @@ pipeline {
                 }
             }
         }
-
-        stage('Build & Run Docker') {
-            steps {
-                script {
-                    def shortCommit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-                    sh """
-                        docker build -t backend-image:${shortCommit} .
-                        docker stop backend-con || true
-                        docker rm backend-con || true
-                        docker run -d --name backend-con \\
-                            -p 9090:9090 \\
-                            -e POSTGRES_DB=mydb \\
-                            -e POSTGRES_USER=postgres \\
-                            -e POSTGRES_PASSWORD=postgres \\
-                            backend-image:${shortCommit}
-                    """
-                }
-            }
-        }
     }
 
     post {
         success {
-            echo "✅ Build & Deploy succeeded for commit ${env.GIT_COMMIT}"
+            echo "✅ Build succeeded for commit ${env.GIT_COMMIT}"
         }
         failure {
-            echo "❌ Build or Deploy failed for commit ${env.GIT_COMMIT}"
+            echo "❌ Build failed for commit ${env.GIT_COMMIT}"
         }
     }
 }

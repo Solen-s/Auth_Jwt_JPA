@@ -1,22 +1,24 @@
 pipeline {
     agent any
     tools {
-            jdk 'JDK17'
+        jdk 'JDK17'
     }
-    stages {
-            stage('Check Java') {
-                steps {
-                    sh 'java -version'
-                }
-            }
-    }
+
     triggers {
         githubPush() // auto-trigger on push
     }
 
     stages {
+        stage('Check Java') {
+            steps {
+                sh 'java -version'
+            }
+        }
+
         stage('Checkout') {
-            steps { checkout scm }
+            steps {
+                checkout scm
+            }
         }
 
         stage('Build JAR') {

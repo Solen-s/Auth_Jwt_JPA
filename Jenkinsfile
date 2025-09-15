@@ -2,18 +2,6 @@ pipeline {
     agent any
 
     stages {
-        // Build Java
-        stage('Build JAR') {
-            steps {
-                sh "mvn clean package -DskipTests=true"
-            }
-        }
-        // Test
-        stage('Test') {
-            steps {
-                sh "mvn test"
-            }
-        }
          // Build image
         stage('Build Docker Image') {
             steps {

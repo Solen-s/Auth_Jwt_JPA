@@ -1,11 +1,19 @@
 pipeline {
     agent any
-
+     tools {
+           jdk 'JDK17' // Name of the JDK installation in Global Tool Configuration
+     }
     triggers {
         githubPush() // auto-trigger on push
     }
 
     stages {
+        stage('Check Java Version') {
+            steps {
+                sh 'java -version'
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm

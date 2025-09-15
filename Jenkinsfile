@@ -6,11 +6,6 @@ pipeline {
     // }
 
     stages {
-        stage('Check Java Version') {
-            steps {
-                sh 'java -version'
-            }
-        }
 
 
         // stage('Build') {
@@ -23,10 +18,11 @@ pipeline {
         stage ("test") {
             steps {
                 sh '''
-                    mvn --version
+                    docker build -t spring .
                 '''
             }
         }
+        
         
 
         // stage('Test') {

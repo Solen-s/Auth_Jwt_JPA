@@ -2,6 +2,13 @@ pipeline {
     agent any
 
     stages {
+     // Build image
+        stage('Test') {
+                steps {
+                    sh "ls "
+                }
+        }
+
          // Build image
         stage('Build Docker Image') {
             steps {

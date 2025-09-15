@@ -14,7 +14,7 @@ pipeline {
                 sh "mvn test"
             }
         }
-
+         // Build image
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t spring-app:${BUILD_NUMBER} ."

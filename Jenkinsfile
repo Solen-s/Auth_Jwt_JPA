@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    triggers {
-        githubPush() // auto-trigger on push
-    }
+    // triggers {
+    //     githubPush() // auto-trigger on push
+    // }
 
     stages {
         stage('Check Java Version') {

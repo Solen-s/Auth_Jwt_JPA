@@ -3,6 +3,13 @@ pipeline {
     tools {
             jdk 'JDK17'
     }
+    stages {
+            stage('Check Java') {
+                steps {
+                    sh 'java -version'
+                }
+            }
+    }
     triggers {
         githubPush() // auto-trigger on push
     }

@@ -1,67 +1,40 @@
 pipeline {
     agent any
 
-    // triggers {
-    //     githubPush() // auto-trigger on push
-    // }
-
     stages {
-
-
-        // stage('Build') {
-        //     steps {
-        //         echo "Building project..."
-        //         sh 'mvn clean install -DskipTests' // For Maven projects
-        //     }
-        // }
-
-        stage ("test") {
+        stage('Checkout') {
             steps {
-                sh '''
-                    docker build -t spring .
-                '''
+                checkout scm
             }
         }
-        
-        
 
-        // stage('Test') {
-        //     steps {
-        //         echo "Running tests..."
-        //         sh 'mvn test'
-        //     }
-        // }
+        stage('Build JAR') {
+            steps {
+                sh "mvn clean package -DskipTests=true"
+            }
+        }
 
-    //     stage('Commit Info') {
-    //         steps {
-    //             echo "Branch: ${env.GIT_BRANCH}"
-    //             echo "Commit: ${env.GIT_COMMIT}"
+        stage('Test') {
+            steps {
+                sh "mvn test"
+            }
+        }
 
-    //             script {
-    //                 // Get the author of the last commit
-    //                 def author = sh(
-    //                     script: "git log -1 --pretty=format:'%an <%ae>'",
-    //                     returnStdout: true
-    //                 ).trim()
-    //                 echo "Commit Author: ${author}"
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t spring-app:${BUILD_NUMBER} ."
+            }
+        }
 
-    //                 // Optional: get committer (who actually pushed)
-    //                 def committer = sh(
-    //                     script: "git log -1 --pretty=format:'%cn <%ce>'",
-    //                     returnStdout: true
-    //                 ).trim()
-    //                 echo "Committer: ${committer}"
-    //             }
-    //         }
-    //     }
-    // }
-
-    // post {
-    //     success {
-    //         echo "✅ Build succeeded for commit ${env.GIT_COMMIT}"
-    //     }
-    //     failure {
-    //         echo "❌ Build failed for commit ${env.GIT_COMMIT}"
-    //     }
+        stage('Run Container') {
+            steps {
+                sh """
+                if docker ps -a --format '{{.Names}}' | grep -w spring-app-container >/dev/null 2>&1; then
+                    docker rm -f myapp-container
+                fi
+                docker run -d --name myapp-container -p 9090:9090 spring-app:${BUILD_NUMBER}
+                """
+            }
+        }
     }
 }

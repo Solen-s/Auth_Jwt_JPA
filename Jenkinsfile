@@ -20,7 +20,7 @@ pipeline {
             steps {
                 sh """
                 # Stop and remove old spring containers if they exist
-                docker rm -f spring-app-con || true
+                docker rm -f spring-app-con postgres-container || true
 
                 # Start PostgreSQL
                 docker run -d --name postgres-container \

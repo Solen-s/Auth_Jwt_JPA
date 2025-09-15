@@ -1,8 +1,6 @@
 pipeline {
     agent any
-     tools {
-           jdk 'JDK17' // Name of the JDK installation in Global Tool Configuration
-     }
+
     triggers {
         githubPush() // auto-trigger on push
     }

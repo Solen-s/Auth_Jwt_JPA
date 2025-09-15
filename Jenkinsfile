@@ -12,18 +12,13 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
 
-        stage('Build') {
-            steps {
-                echo "Building project..."
-                sh 'mvn clean install -DskipTests' // For Maven projects
-            }
-        }
+        // stage('Build') {
+        //     steps {
+        //         echo "Building project..."
+        //         sh 'mvn clean install -DskipTests' // For Maven projects
+        //     }
+        // }
 
         stage ("test") {
             steps {

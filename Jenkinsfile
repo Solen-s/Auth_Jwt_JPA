@@ -2,18 +2,13 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
+        // Build Java
         stage('Build JAR') {
             steps {
                 sh "mvn clean package -DskipTests=true"
             }
         }
-
+        // Test
         stage('Test') {
             steps {
                 sh "mvn test"

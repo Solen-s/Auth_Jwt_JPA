@@ -10,7 +10,7 @@ pipeline {
         }
 
          // Build image
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
                 sh "docker build -t spring-app:${BUILD_NUMBER} ."
             }

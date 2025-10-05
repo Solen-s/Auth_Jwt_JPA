@@ -59,7 +59,7 @@ pipeline {
 	post{
 		failure {
 			script{
-			"""
+			sh"""
 			echo "Deployment FAILED at \$(data) | \
 			mail -s "Jenkins Deployment Failure" ${EMAIL_RECIPIENT}		
 			"""

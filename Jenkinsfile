@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        EMAIL_RECIPIENT = 'solen0918@gmail.com'
+        EMAIL_RECIPIENT = 'solandd9@gmail.com'
     }
     stages {
      // Build image
@@ -55,4 +55,15 @@ pipeline {
           }
        }
     }
+
+	post{
+		failure {
+			script{
+			"""
+			echo "Deployment FAILED at \$(data) | \
+			mail -s "Jenkins Deployment Failure" ${EMAIL_RECIPIENT}		
+			"""
+			}
+		}	
+	}
 }

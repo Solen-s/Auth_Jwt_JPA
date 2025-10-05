@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    environment {
+        EMAIL_RECIPIENT = 'solen0918@gmail.com'
+    }
     stages {
      // Build image
         stage('Test') {
@@ -42,5 +44,15 @@ pipeline {
                 """
             }
         }
+	stage('Send Email Notification') {
+            steps {
+                script {
+                    sh """
+                    echo "Deployment to ${DEPLOY_ENV} completed successfully at \$(date)" | \
+                    mail -s "Jenkins Deployment Notification" ${EMAIL_RECIPIENT}
+                    """
+             }
+          }
+       }
     }
 }

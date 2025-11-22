@@ -1,9 +1,11 @@
 package com.example.spring_jwt_example.model.Service.Impl;
 
 
+import com.example.spring_jwt_example.exception.InvalidException;
 import com.example.spring_jwt_example.model.dto.AppUserDTO;
 import com.example.spring_jwt_example.model.entity.AppUser;
 import com.example.spring_jwt_example.model.Service.AppUserService;
+import com.example.spring_jwt_example.model.entity.Role;
 import com.example.spring_jwt_example.model.request.RegisterRequest;
 import com.example.spring_jwt_example.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 
 
 @Service
@@ -31,18 +34,33 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public AppUserDTO create(RegisterRequest request) {
+    public AppUserDTO create(RegisterRequest request, Role role) {
+        // Check username exists
+        if(appUserRepository.existsByEmail(request.getEmail())) {
+            throw new InvalidException( request.getEmail()+ " already exists");
+        }
+        if(appUserRepository.existsByUsername(request.getUsername())) {
+            throw new InvalidException( request.getUsername()+ " already exists");
+        }
         AppUser appUser = new AppUser();
         appUser.setUsername(request.getUsername());
         appUser.setPassword(passwordEncoder.encode(request.getPassword()));
         appUser.setEmail(request.getEmail());
         appUser.setFirstName(request.getFirstName());
         appUser.setLastName(request.getLastName());
-        appUser.setRole(request.getRole());
+        appUser.setRole(role);
         request.setPassword(passwordEncoder.encode(request.getPassword()));
 
         AppUser savedAppUser = appUserRepository.save(appUser);
 
         return modelMapper.map(savedAppUser, AppUserDTO.class);
     }
+
+    @Override
+    public AppUser findByEmail(String email) {
+       Optional<AppUser> appUser = appUserRepository.findByEmail(email);
+       return appUser.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    }
+
+
 }

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationRequest {
   @NotBlank(message = "Username or email is required")
-  private String login;
+  private String identify;
 
   @Size(min = 8, message = "Password must be more required or more than 8 characters.")
   private String password;

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-@OpenAPIDefinition(info = @Info(title = "Gamified Habit Tracker API",
+@OpenAPIDefinition(info = @Info(title = "Auth API",
         version = "v1",
         description = "API documentation for the Gamified Habit Tracker application"))
 @SecurityScheme(

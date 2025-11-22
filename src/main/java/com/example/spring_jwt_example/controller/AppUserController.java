@@ -3,6 +3,8 @@ package com.example.spring_jwt_example.controller;
 import com.example.spring_jwt_example.jwt.JwtService;
 import com.example.spring_jwt_example.model.Service.AppUserService;
 import com.example.spring_jwt_example.model.dto.AppUserDTO;
+import com.example.spring_jwt_example.model.entity.AppUser;
+import com.example.spring_jwt_example.model.entity.Role;
 import com.example.spring_jwt_example.model.request.AuthenticationRequest;
 import com.example.spring_jwt_example.model.request.RegisterRequest;
 import com.example.spring_jwt_example.model.response.ApiResponse;
@@ -15,12 +17,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/auths")
+@RequestMapping("api/v1/auth")
 @RequiredArgsConstructor
 public class AppUserController {
 
@@ -39,8 +42,8 @@ public class AppUserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid  @RequestBody RegisterRequest request ) {
-        AppUserDTO appUserDTO = appUserService.create(request);
+    public ResponseEntity<?> register(@Valid @RequestParam Role role, @RequestBody RegisterRequest request ) {
+        AppUserDTO appUserDTO = appUserService.create(request,role);
        return ResponseEntity.ok().body(
                ApiResponse.builder()
                         .success(true)
@@ -52,28 +55,27 @@ public class AppUserController {
        );
     }
     @PostMapping("/login")
-    public ResponseEntity<?> authenticate(@Valid @RequestBody AuthenticationRequest request) throws Exception {
-        final UserDetails user = appUserService.loadUserByUsername(request.getLogin());
-        final String token = jwtService.generateToken(user);
-        if(user == null){
-            throw new BadCredentialsException("INVALID_CREDENTIALS");
-        }
-        if(user.getPassword().equals(token)){
-            throw new BadCredentialsException("INVALID_CREDENTIALS");
-        }
-       authenticate(request.getLogin(),request.getPassword());
-        try{
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(request.getLogin(),request.getPassword());
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        AuthenticationResponse response = new AuthenticationResponse(token);
+    public ResponseEntity<ApiResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) throws Exception {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getIdentify(),
+                        request.getPassword()
+                )
+        );
+        // Load real AppUser ( with ID)
+        AppUser user = appUserService.findByEmail(request.getIdentify());
+
+        // Generate token
+        String token = jwtService.generateToken(user);
+
+        // Build response
+        AuthenticationResponse response = new AuthenticationResponse(user.getUsername(), user.getId(), token);
         return ResponseEntity.ok().body(
                 ApiResponse.builder()
                         .success(true)
                         .message("User logged in successfully")
                         .httpStatus(HttpStatus.OK)
+                        .message(user.getUsername())
                         .payload(response)
                         .build()
         );

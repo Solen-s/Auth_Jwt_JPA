@@ -10,6 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface AppUserService extends UserDetailsService {
     AppUserDTO create(RegisterRequest request, Role role);
-    AppUser findByEmail(String email);
+    AppUser findByEmailOrUsername(String identify);
 
 }

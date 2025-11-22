@@ -54,6 +54,8 @@ public class AppUserController {
 
        );
     }
+
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
@@ -63,7 +65,7 @@ public class AppUserController {
                 )
         );
         // Load real AppUser ( with ID)
-        AppUser user = appUserService.findByEmail(request.getIdentify());
+        AppUser user = appUserService.findByEmailOrUsername(request.getIdentify());
 
         // Generate token
         String token = jwtService.generateToken(user);
@@ -75,7 +77,6 @@ public class AppUserController {
                         .success(true)
                         .message("User logged in successfully")
                         .httpStatus(HttpStatus.OK)
-                        .message(user.getUsername())
                         .payload(response)
                         .build()
         );

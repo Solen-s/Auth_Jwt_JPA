@@ -57,9 +57,15 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    public AppUser findByEmail(String email) {
-       Optional<AppUser> appUser = appUserRepository.findByEmail(email);
-       return appUser.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public AppUser findByEmailOrUsername(String identify) {
+    // Check the input contains '@', treat as email
+        if(identify.contains("@")) {
+            return appUserRepository.findByEmail(identify)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + identify));
+        }
+        // Otherwise use username
+        return appUserRepository.findByUsername(identify)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + identify));
     }
 
 

@@ -22,14 +22,13 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        responseMap.put("error", "UNAUTHORIZED");
-        responseMap.put("message", "Authentication required or token is invalid");
+        responseMap.put("error", "INVALID_CREDENTIALS");
+        responseMap.put("message", "Incorrect username/email or password");
         responseMap.put("path", request.getRequestURI());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         objectMapper.writeValue(response.getWriter(), responseMap);
 
     }
-
 }
 
